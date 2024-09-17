@@ -29,7 +29,7 @@ This project uses a basic image classification approach to convert images into t
 
     $D(i, j) = \text{Squared Euclidean Distance } (T[i], X[j])$
 
-where $T[i]$ is the $i^{th}$ test image and $X[j]$ is the $j^{th}$ training image.
+    where $T[i]$ is the $i^{th}$ test image and $X[j]$ is the $j^{th}$ training image.
 
 3. **K-Nearest Neighbors**: Once the distance matrix is computed, the algorithm finds the K nearest neighbors (images with the smallest distances) for each test image. For this project, \( K = 5 \).
 
