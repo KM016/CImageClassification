@@ -1,6 +1,6 @@
 # CImageClassification
 
-Date: 12/2024 <br>
+Date: 12/2023 <br>
 University Project
 
 # The Task
@@ -19,7 +19,7 @@ The input consists of images, each represented as a matrix of pixels. These gray
 
 The program outputs the character label associated with the given test image based on the image data provided in the matrices.
 
-## The Algorithm
+# The Algorithm
 
 This project uses a basic image classification approach to convert images into their respective characters. The key algorithm used is the **K-Nearest Neighbors (K-NN)** classifier. Here's how it works:
 
