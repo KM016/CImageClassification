@@ -36,3 +36,5 @@ This project uses a basic image classification approach to convert images into t
 4. **Classification**: For each test image, the algorithm checks the labels of its nearest neighbors. It counts how many neighbors are associated with the digit "1". If 3 or more of the 5 nearest neighbors are labeled "1", the algorithm predicts the label "1" for the test image. Otherwise, it predicts "Not 1".
 
 5.  **Output:** The algorithm outputs whether each test image is classified as a "1" or "Not 1".
+
+**Mark:** For this project I achieved a 100/100
