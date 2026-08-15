@@ -1,40 +1,88 @@
-# CImageClassification
+# Binary Handwritten-Digit Classification in C
 
-Date: 12/2023 <br>
-University Project
+A from-scratch 5-nearest-neighbours classifier that identifies whether a 28-by-28 grayscale image contains the digit `1`.
 
-# The Task
+> University of Bristol Coursework<br>
+> Mark awarded: **100/100**<br>
+> Date: 12/2023 <br>
 
-The goal of this project is to implement a simple image-to-text conversion algorithm using C. The task is to convert images, represented as matrices, into textual representations of characters. This project is part of the coursework and aims to demonstrate the application of matrix operations and file handling in C.
+## Project overview
 
-## Input
+The program reads flattened grayscale images from binary matrix files, computes squared Euclidean distances between every test image and every training image, and classifies each test image from the labels of its five nearest neighbours.
 
-The input consists of images, each represented as a matrix of pixels. These grayscale images are flattened into 1D arrays (vectors) where each element represents the brightness of a pixel.
+The assignment combines low-level data handling with a complete classification pipeline: images are read from a custom binary format, stored in manually allocated matrices, compared without a machine-learning library and rendered in the terminal.
 
-- **Training Data**: A matrix where each row corresponds to a grayscale image.
-- **Test Data**: Another matrix that needs to be classified based on the training data.
-- **Labels**: A 1D matrix indicating whether the corresponding image represents a digit or a character.
+The supplied data contains:
 
-## Output
+- 1,987 training images;
+- 100 test images;
+- 784 pixel values per image, corresponding to a 28-by-28 grid; and
+- 1,987 binary training labels, of which 219 are labelled as the digit `1`.
 
-The program outputs the character label associated with the given test image based on the image data provided in the matrices.
+For each test image, the program prints an ASCII representation and predicts either `1` or `Not 1`. The supplied test set produces 17 predictions of the digit `1`.
 
-# The Algorithm
+## Input representation
 
-This project uses a basic image classification approach to convert images into their respective characters. The key algorithm used is the **K-Nearest Neighbors (K-NN)** classifier. Here's how it works:
+Each `.matrix` file begins with two integers giving the number of rows and columns, followed by the matrix entries. Images are flattened in row-major order, so each row of `X.matrix` or `T.matrix` contains one complete image.
 
-1. **Data Representation**: The images are stored in a matrix format where each row is a flattened grayscale image. The brightness values of each pixel are represented as integers.
+- `X.matrix` has shape `1987 × 784` and stores the training images.
+- `T.matrix` has shape `100 × 784` and stores the test images.
+- `Y.matrix` has shape `1987 × 1` and stores the binary training labels.
 
-2. **Distance Calculation**: For each test image, the squared Euclidean distance is calculated between the test image and all images in the training set. This is done using a distance matrix D:
+Pixel values are integers from the grayscale images. `image2char(...)` maps lower-intensity pixels to spaces, mid-range pixels to `I` and high-intensity pixels to `M`, allowing each 28-by-28 image to be inspected in the terminal.
 
-    $D(i, j) = \text{Squared Euclidean Distance } (T[i], X[j])$
+## Classification algorithm
 
-    where $T[i]$ is the $i^{th}$ test image and $X[j]$ is the $j^{th}$ training image.
+For test image $T_i$ and training image $X_j$, the program calculates
 
-3. **K-Nearest Neighbors**: Once the distance matrix is computed, the algorithm finds the K nearest neighbors (images with the smallest distances) for each test image. For this project, \( K = 5 \).
+$$
+D_{ij}=\sum_{p=1}^{784}(T_{ip}-X_{jp})^2.
+$$
 
-4. **Classification**: For each test image, the algorithm checks the labels of its nearest neighbors. It counts how many neighbors are associated with the digit "1". If 3 or more of the 5 nearest neighbors are labeled "1", the algorithm predicts the label "1" for the test image. Otherwise, it predicts "Not 1".
+Each row of $D$ therefore contains the distances from one test image to all 1,987 training images. The five smallest entries identify its nearest neighbours. If at least three of their labels equal `1`, the test image is classified as `1`; otherwise it is classified as `Not 1`.
 
-5.  **Output:** The algorithm outputs whether each test image is classified as a "1" or "Not 1".
+## Implementation
 
-**Mark:** For this project I achieved a 100/100
+The main functions are:
+
+- `read_matrix(filename)`: reads the dimensions and values from a binary matrix file.
+- `get_elem(M, i, j)` and `set_elem(M, i, j, value)`: access the flattened row-major storage.
+- `pairwise_dist2(M1, M2, D)`: fills the complete pairwise squared-distance matrix.
+- `find_min_index(a, len)`: finds the location of the smallest array element.
+- `minimum5(a, len, indices)`: repeatedly finds and records the five smallest entries.
+- `image2char(image, Height, Width)`: prints a grayscale image using ASCII characters.
+
+`main()` loads the three matrices, constructs the `100 × 1987` distance matrix, classifies each test image, reports the predictions and frees all dynamically allocated memory.
+
+## Repository contents
+
+The executable expects all four input files in the same directory:
+
+```text
+.
+├── image_to_char.c    # Classifier implementation
+├── X.matrix           # Training images
+├── T.matrix           # Test images
+├── Y.matrix           # Training labels
+└── README.md
+```
+
+## Building and running
+
+Using GNU GCC:
+
+```bash
+gcc -std=c11 image_to_char.c -lm -o image_to_char
+./image_to_char
+```
+
+The original submission declares `void main()`. GNU GCC accepts this with a warning, but modern Apple Clang rejects it in its default hosted mode. On macOS with Clang, the preserved source can be compiled as a freestanding program:
+
+```bash
+clang -std=c11 -ffreestanding image_to_char.c -lm -o image_to_char
+./image_to_char
+```
+
+## Scope and limitations
+
+This is a binary `1`-versus-`not 1` classifier rather than a ten-class digit recogniser. The number of neighbours, image dimensions and input filenames are fixed in the source. Test labels are not included, so the repository can reproduce the predictions but cannot calculate test accuracy.
